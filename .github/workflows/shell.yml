@@ -23,7 +23,7 @@ jobs:
         detached: true
 
   use-ssh-command:
-    needs: setup-tmate
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Display SSH command
