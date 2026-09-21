@@ -9,23 +9,13 @@ on:
         default: 'false'
 jobs:
   build:
-    runs-on: windows-latest
-    outputs:
-      ssh-command: ${{ steps.tmate.outputs.ssh-command }}
-      ssh-address: ${{ steps.tmate.outputs.ssh-address }}
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup tmate session
-      id: tmate
+      if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
       timeout-minutes: 360
       with:
-        detached: true
-
-  use-ssh-command:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Display SSH command
-      run: |
-        # Send a Slack message to someone telling them they can ssh to ${{ needs.setup-tmate.outputs.ssh-address }}
+        limit-access-to-actor: false
+        install-dependencies: false
