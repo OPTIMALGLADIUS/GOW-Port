@@ -15,4 +15,4 @@ jobs:
     - name: Setup upterm session
       uses: owenthereal/action-upterm@v1.15.0
       with:
-        upterm_server: wss://uptermd.upterm.dev:443
+        upterm-server: wss://uptermd.upterm.dev:443
