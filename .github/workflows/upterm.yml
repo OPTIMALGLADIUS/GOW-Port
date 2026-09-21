@@ -15,4 +15,4 @@ jobs:
     - name: Setup upterm session
       uses: owenthereal/action-upterm@v1.15.0
       with:
-        upterm-server: wss://gow-port.onrender.com
+        upterm-server: wss://gow-port.onrender.com:80
