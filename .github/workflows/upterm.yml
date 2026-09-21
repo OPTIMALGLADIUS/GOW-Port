@@ -13,4 +13,4 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Setup upterm session
-      uses: owenthereal/action-upterm@v1
+      uses: owenthereal/action-upterm@v1.15.0
