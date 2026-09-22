@@ -34,7 +34,7 @@ jobs:
     - name: Downloading the archive
       run: |
         sudo apt install wget -y
-        wget -O God-Of-War-AnkerGames.zip https://tunnel5.dlproxy.uk/download/vhWcE3IuQ4-zhOZudxXeOohFz25dEzYq3h-ZwsKsdXg9IsKQtOiEHXjO7FpdLY27ViecZvVNl8hRXzTNQnIzacOU5Gmf7hL-EsquKhK3Pqxgro-4TBzOZQ8kVg9hvU6YJx2GlcFiLRxzmW7p4y1Yv0lFLesilIU6zi_myLoyBMqKEovi7Ytr_o7HRJVLzl40xJjPxx58ost28y0A9WCsAFlVw2OSyAvVENHyqmK5cG8loXX8sq_X5LHNxAZN89jAsYgBw6854ehLv7sL5KBsg8e2HSDhj2F_iTF_9kt20NTtrs6ZiiM8k0ukyRjc56R4GPNYFaRANqvf-uG37oHO-YHYY54DA6wb7sGbn_D_IyzXfewOi0XryU49jy1pFh_iVyXBNoyzrHSn7qGZT30q4Q?sig=V5nDbRxlXQ9s7i7sZ2CO9mqWwTk9ZKh0RJsUbyuPDMM
+        wget -O God-Of-War-AnkerGames.zip https://tunnel5.dlproxy.uk/download/A4DRljL3YcUzm9Azgc_rlxh37vh0RYqALbr1pTD-V_oTcvmSJKCUusjA9g3XrV7F1BBwMxCu9QH6HjUeLdZjO0sOnaw8zBrpl2GiBVfTyBUVkPgI7Vv1a_9c9xvlvSXdM_gtgyB_sZZm0oqzcc8sanZ-Suz6e6Cvq3iDTtYAO3v7WYQvAbuO3yU7hNenEaiwnSpGpFRTcEEpkwKWS9s3xAsgRY_Q0jgUm4pThnwLkguzi8qeG8yi5JmihElMxjAk2sXSoSByxObaSmv2MZUyC0Ol214-zEeIf_oJjzEdVygEoiMRrRtGkm1zpgZFFAlh4qo36BIFB-u8-8cBVHcEyb5hEr648w8S-2iMMyOjadhG6jTclSjvYxRB-kK_VF9MyiZbpjPjg1TmbUPhbM-oQg?sig=vjjuPfusrCGY4tXhahl2142sbbYgcgpcNTH14HP2zaQ
         
     - name: Checking archive
       run: bash archive-test.sh
