@@ -1,10 +1,7 @@
-sudo apt install 7zip 7zip-standalone -y
-file God-Of-War-AnkerGames.zip
-xxd -l 64 God-Of-War-AnkerGames.zip
-7z l -slt God-Of-War-AnkerGames.zip
-7z l -slt God-Of-War-AnkerGames.zip | grep -E '^(Path|Size|Packed Size|Method) ='
-ls -lh God-Of-War-AnkerGames.zip
-stat God-Of-War-AnkerGames
-stat -c '%s' God-Of-War-AnkerGames.zip
-zipinfo -v God-Of-War-AnkerGames.zip | head -100
-xxd -l 32 God-Of-War-AnkerGames.zip
+wget -O 7zip.tar.xz https://github.com/ip7z/7zip/releases/download/26.03/7z2603-linux-x64.tar.xz
+tar -xf 7zip.tar.xz
+chmod +x 7zz
+mkdir -p pc-files
+./7zz x God-Of-War-AnkerGames.zip -o $PWD/pc-files
+ls
+ls pc-files
