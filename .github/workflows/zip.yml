@@ -12,15 +12,6 @@ jobs:
     name: Build my artifact
     runs-on: ubuntu-latest
     steps:
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
-      with:
-          remove-dotnet: 'true'
-          remove-docker-images: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
     - name: Checkout
       uses: actions/checkout@v4
 
