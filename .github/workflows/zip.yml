@@ -34,7 +34,7 @@ jobs:
     - name: Downloading the archive
       run: |
         sudo apt install wget -y
-        wget -O God-Of-War-AnkerGames.zip https://tunnel5.dlproxy.uk/download/A4DRljL3YcUzm9Azgc_rlxh37vh0RYqALbr1pTD-V_oTcvmSJKCUusjA9g3XrV7F1BBwMxCu9QH6HjUeLdZjO0sOnaw8zBrpl2GiBVfTyBUVkPgI7Vv1a_9c9xvlvSXdM_gtgyB_sZZm0oqzcc8sanZ-Suz6e6Cvq3iDTtYAO3v7WYQvAbuO3yU7hNenEaiwnSpGpFRTcEEpkwKWS9s3xAsgRY_Q0jgUm4pThnwLkguzi8qeG8yi5JmihElMxjAk2sXSoSByxObaSmv2MZUyC0Ol214-zEeIf_oJjzEdVygEoiMRrRtGkm1zpgZFFAlh4qo36BIFB-u8-8cBVHcEyb5hEr648w8S-2iMMyOjadhG6jTclSjvYxRB-kK_VF9MyiZbpjPjg1TmbUPhbM-oQg?sig=vjjuPfusrCGY4tXhahl2142sbbYgcgpcNTH14HP2zaQ
+        wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/CyQUAY30fqzj8MUP7lV4qR_92ZUQVdgbeFtfhI1yFBjwB4wiv2eoaCkIafO8CF7xxtnQ0IRKWU4er0ordPk3tI3K7aBJKCb_Sw2Qv16303VOYkmihCLuns5lrVU4dfg3yQQq-xNUnJSR9d4ccEZ7sEjTr-WoqjnDItis0ds7Bx0jUMotuBcMOCngpQZC_M_qfHP40yOeeoq4Vw8sdVVIgMXAq8E1IZwoOlf-f4cVqU4Ouy7Y2Its7d5ZUiofFCm22j6e8rP3BifeF1F_lJqM1U2fRS66pz4SvUVp2gJSOsVMa1cKsjjNzBZlE4GjMhZyzmO1sCjaxrzpiKFxZQfL1mcCgPFKj_5xAC1hjP9D1DC1Lrm7TeoXQja7GnJzxFIUQPwG9-RiJTPsLJcDK5Ql0X0QhXFEgPvPWxRg506GAMc?sig=eLEmkrThVnihd174QggEcvOUMAqJygEScHualRpwPss
         
     - name: Checking archive
       run: bash archive-test.sh
