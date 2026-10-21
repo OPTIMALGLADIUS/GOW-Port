@@ -4,4 +4,4 @@ chmod +x 7zz
 ./7zz x Sekiro.zip -o$PWD
 cd Sekiro
 ls
-zip files.zip Data1.bdt Data1.bhd Data2.bdt Data2.bhd Data3.bdt Data3.bhd Data4.bdt Data4.bhd Data5.bdt Data5.bhd pack.dat
+zip files.zip Data1.bdt Data1.bhd Data2.bdt Data2.bhd Data3.bdt Data3.bhd Data4.bdt Data4.bhd Data5.bdt Data5.bhd
