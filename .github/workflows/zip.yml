@@ -28,9 +28,62 @@ jobs:
     - name: Checking archive
       run: bash archive-test.sh
       
-    - name: Upload Artifact
+    - name: Upload Data1.bdt
       uses: actions/upload-artifact@v7
       with:
-        name: sekiro
-        path: ${{ github.workspace }}/Sekiro/files.zip
-        archive: false
+        name: Data1
+        path: ${{ github.workspace }}/Sekiro/Data1.bdt
+
+    - name: Upload Data1.bhd
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data1_2
+        path: ${{ github.workspace }}/Sekiro/Data1.bhd
+
+    - name: Upload Data2.bdt
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data2
+        path: ${{ github.workspace }}/Sekiro/Data2.bdt
+
+    - name: Upload Data2.bhd
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data2_2
+        path: ${{ github.workspace }}/Sekiro/Data2.bhd
+
+    - name: Upload Data3.bdt
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data3
+        path: ${{ github.workspace }}/Sekiro/Data3.bdt
+
+    - name: Upload Data3.bhd
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data3_2
+        path: ${{ github.workspace }}/Sekiro/Data3.bhd
+
+    - name: Upload Data4.bdt
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data4
+        path: ${{ github.workspace }}/Sekiro/Data4.bdt
+
+    - name: Upload Data4.bhd
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data4_2
+        path: ${{ github.workspace }}/Sekiro/Data4.bhd
+
+    - name: Upload Data5.bdt
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data5
+        path: ${{ github.workspace }}/Sekiro/Data5.bdt
+
+    - name: Upload Data5.bhd
+      uses: actions/upload-artifact@v7
+      with:
+        name: Data5_2
+        path: ${{ github.workspace }}/Sekiro/Data5.bhd
