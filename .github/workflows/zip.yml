@@ -6,7 +6,7 @@ on:
         type: boolean
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
         required: false
-        default: 'false'
+        default: 'true'
 jobs:
   build:
     name: Build my artifact
@@ -23,7 +23,7 @@ jobs:
     - name: Downloading the archive
       run: |
         sudo apt install wget -y
-        wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/CyQUAY30fqzj8MUP7lV4qR_92ZUQVdgbeFtfhI1yFBjwB4wiv2eoaCkIafO8CF7xxtnQ0IRKWU4er0ordPk3tI3K7aBJKCb_Sw2Qv16303VOYkmihCLuns5lrVU4dfg3yQQq-xNUnJSR9d4ccEZ7sEjTr-WoqjnDItis0ds7Bx0jUMotuBcMOCngpQZC_M_qfHP40yOeeoq4Vw8sdVVIgMXAq8E1IZwoOlf-f4cVqU4Ouy7Y2Its7d5ZUiofFCm22j6e8rP3BifeF1F_lJqM1U2fRS66pz4SvUVp2gJSOsVMa1cKsjjNzBZlE4GjMhZyzmO1sCjaxrzpiKFxZQfL1mcCgPFKj_5xAC1hjP9D1DC1Lrm7TeoXQja7GnJzxFIUQPwG9-RiJTPsLJcDK5Ql0X0QhXFEgPvPWxRg506GAMc?sig=eLEmkrThVnihd174QggEcvOUMAqJygEScHualRpwPss
+        wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/IjMhVpTGySVqzp2sUURewWPTj76Yg2OQaxgmVGr4mni2NaHJQrgRUWPIvmqacIrIxw3d_blqEHLYtVQJ2vJVeCc8u1pTRkfaKpiIqBl0RuI-maCPQ_lVBu_KCffUCGJ12nMeRGHL3pFw7ewE7jXXamBs4r1oqkapVaoKpCK4XHJs-0CCfffV4fOJx4DtsyEymx-uHU-iBuiIkKedlQFdeLN-RL2wJ8dpMPOKfQXpQHmW5-ys9FeBQuF4qgeWyUa6OYbq6JbOjdRiWrua2_B4AYNwxUNz7ddmnHtm41ytc_ERJ5GNJr9z2UMc_pQimj8vsEW4wswXA6xmfqKfcd6-VU_rph2iVZ7411pDXmmhE7DGtQhuoLE8UzGmqyfwLUzbymW5m1WdKF0yIWohRtOljIyzA6Y7G4pqfU5mWxzr6cA?sig=d3H6HCRHiF0DhU54P44cOM1tnswR-KRWSHBtQf0xH_g
         
     - name: Checking archive
       run: bash archive-test.sh
