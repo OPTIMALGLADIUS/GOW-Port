@@ -31,17 +31,17 @@ jobs:
           set -euo pipefail
 
           echo "Files downloaded:"
-          find input -type f -printf '%p (%s bytes)\n'
+          find . -type f -printf '%p (%s bytes)\n'
 
           echo
           echo "Looking for Data2 BDT:"
-          find input -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print
+          find . -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print
 
       - name: Prepare target extraction
         run: |
           set -euo pipefail
 
-          BDT="$(find input -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print -quit)"
+          BDT="$(find . -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print -quit)"
 
           if [ -z "$BDT" ]; then
             echo "::error::The downloaded artifact does not contain Data2.bdt."
