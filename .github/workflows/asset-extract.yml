@@ -93,6 +93,69 @@ jobs:
           print(json.dumps(report, indent=2))
           PY
 
+      
+      - name: Inspect Data2 BHD metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BHD="${{ github.workspace }}/Sekiro/Data2.bhd"
+          mkdir -p output
+
+          if [ ! -f "$BHD" ]; then
+            echo "::error::Data2.bhd not found at $BHD"
+            find "${{ github.workspace }}" -type f -iname 'Data2.bhd' -print
+            exit 1
+          fi
+
+          python - "$BHD" <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import sys
+
+          path = pathlib.Path(sys.argv[1])
+          data = path.read_bytes()
+
+          target = 0xF92A250B
+          patterns = {
+              "little_endian_u32": target.to_bytes(4, "little"),
+              "big_endian_u32": target.to_bytes(4, "big"),
+              "little_endian_u64": target.to_bytes(8, "little"),
+              "big_endian_u64": target.to_bytes(8, "big"),
+          }
+
+          report = {
+              "file": path.name,
+              "size": len(data),
+              "sha256": hashlib.sha256(data).hexdigest(),
+              "first_128_bytes": data[:128].hex(" "),
+              "first_16_ascii": "".join(
+                  chr(b) if 32 <= b < 127 else "."
+                  for b in data[:16]
+              ),
+              "target_hash": hex(target),
+              "hash_occurrences": {
+                  name: [
+                      i for i in range(len(data))
+                      if data.startswith(pattern, i)
+                  ][:100]
+                  for name, pattern in patterns.items()
+              },
+              "known_ascii_markers": {
+                  marker.decode("ascii"): data.find(marker)
+                  for marker in (
+                      b"BHD5", b"DCX", b"TPF", b"AES"
+                  )
+              },
+          }
+
+          pathlib.Path("output/bhd_inspection.json").write_text(
+              json.dumps(report, indent=2)
+          )
+          print(json.dumps(report, indent=2))
+          PY
+          
       - name: Upload extraction diagnostics
         uses: actions/upload-artifact@v4
         with:
