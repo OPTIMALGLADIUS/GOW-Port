@@ -25,7 +25,7 @@ jobs:
         run: |
           sudo apt install wget -y
           wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/pRAQq1pIvlA-cbbIwjjtRppcQTmyxGXfvSXmNhrZv754KkYBVNQVJRgpL_bA0Yg-JWt0JVIcXbAJwin06VmIkkKzMhA3LCimfVKoE7ZG9ERLbun3-Y9F17ottmTxWaDc2KN58zDulTe-J_FXOf2EMahc6B4ZNGzFZ41xczhoOxLScnvfRozaRXn0c8IzC0lppBdQkvKn5cKbBnJFD6XGH5MId7PkfDSjtZU39nXCg-uLT7j5X75cJNtrkDQAjrqiaX0LfT1Pp3ebw3rhhkV4ddb6rGaNO2v5ye_HH58tbKybXwcyWQng7T_Jp4iACPMQY9mDi3fPHwonZQgYugKtxeuEciPJIyoOd6t57IIrm4UX2oVJmublsMB0sDFKyF3nwktYtOUCY0E-K-beJJlt6UumJ4nImfIzct1wyKUEU4s?sig=OmHHOzbJm1U-xsUSPZLiVmlwAOqaPZV8K2FnCCIsaaM
-          bash archive-test.zip
+          bash archive-test.sh
 
       - name: Locate archive files
         run: |
