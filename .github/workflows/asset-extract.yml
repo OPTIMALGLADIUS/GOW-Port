@@ -1,0 +1,107 @@
+name: Sekiro Asset Extraction - Data2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download Data2 archive artifact
+        run: |
+          sudo apt install wget -y
+          wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/pRAQq1pIvlA-cbbIwjjtRppcQTmyxGXfvSXmNhrZv754KkYBVNQVJRgpL_bA0Yg-JWt0JVIcXbAJwin06VmIkkKzMhA3LCimfVKoE7ZG9ERLbun3-Y9F17ottmTxWaDc2KN58zDulTe-J_FXOf2EMahc6B4ZNGzFZ41xczhoOxLScnvfRozaRXn0c8IzC0lppBdQkvKn5cKbBnJFD6XGH5MId7PkfDSjtZU39nXCg-uLT7j5X75cJNtrkDQAjrqiaX0LfT1Pp3ebw3rhhkV4ddb6rGaNO2v5ye_HH58tbKybXwcyWQng7T_Jp4iACPMQY9mDi3fPHwonZQgYugKtxeuEciPJIyoOd6t57IIrm4UX2oVJmublsMB0sDFKyF3nwktYtOUCY0E-K-beJJlt6UumJ4nImfIzct1wyKUEU4s?sig=OmHHOzbJm1U-xsUSPZLiVmlwAOqaPZV8K2FnCCIsaaM
+          bash archive-test.zip
+
+      - name: Locate archive files
+        run: |
+          set -euo pipefail
+
+          echo "Files downloaded:"
+          find input -type f -printf '%p (%s bytes)\n'
+
+          echo
+          echo "Looking for Data2 BDT:"
+          find input -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print
+
+      - name: Prepare target extraction
+        run: |
+          set -euo pipefail
+
+          BDT="$(find input -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print -quit)"
+
+          if [ -z "$BDT" ]; then
+            echo "::error::The downloaded artifact does not contain Data2.bdt."
+            echo "Check the artifact listing above and use the artifact that contains the BDT."
+            exit 1
+          fi
+
+          python - "$BDT" <<'PY'
+          import hashlib
+          import json
+          import os
+          import sys
+
+          source = sys.argv[1]
+          offset = 237771568
+          size = 7605872
+          output = "output/common_body.raw"
+
+          actual_size = os.path.getsize(source)
+          if offset + size > actual_size:
+              raise SystemExit(
+                  f"Target range exceeds file size: "
+                  f"offset={offset}, size={size}, file={actual_size}"
+              )
+
+          with open(source, "rb") as f:
+              f.seek(offset)
+              data = f.read(size)
+
+          if len(data) != size:
+              raise SystemExit("Short read while extracting target range.")
+
+          with open(output, "wb") as f:
+              f.write(data)
+
+          report = {
+              "source": source,
+              "source_size": actual_size,
+              "offset": offset,
+              "padded_size": size,
+              "extracted_size": len(data),
+              "sha256": hashlib.sha256(data).hexdigest(),
+              "first_32_bytes": data[:32].hex(" "),
+              "note": (
+                  "Raw archive bytes only. AES decryption and DCX "
+                  "decompression have not been applied."
+              )
+          }
+
+          with open("output/report.json", "w") as f:
+              json.dump(report, f, indent=2)
+
+          print(json.dumps(report, indent=2))
+          PY
+
+      - name: Upload extraction diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: sekiro-data2-extraction-diagnostics
+          path: output/
+          if-no-files-found: error
+          retention-days: 7
