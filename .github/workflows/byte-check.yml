@@ -21,12 +21,6 @@ jobs:
           sudo apt install wget -y
           wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/Wk_JbASiIrDbACZrbAXIOsycQvfQ5MeOdfDXKggmLjhMqF-faodjANIqHcjniCFUmGUwRiya79Mj_GnFh3M0YWhkk-SnvtntxkMqTf-9touVkn0eWOCSr2uVHHSUgFgrB4YmmKX6VrgcIc46gVh4SKS6STVhSCtoL51bC6H2M-8oBvPbnX_v8kAJEl4cY5Owp4A7kEIpqrEuhqkhddNS86GYbzzX5w7o_RS8xO7BCM1OJvI-kMF7a8wYT_w1v0kwuYYIVWevanpN-I0VV7xoMOX5jDaAATU_cJUtCrqAh9KxHuOuuzGfnQqc_U-7NsIMVjvhFyUu8vrwB0EjXSe28-mcdtL_8q622qHbim9hV1MKhaQG0IMcT_jncG6LI3cUZzvf4O7m_3C21AQrRDqkdxDOdlsjYwwPntqHxEUMBsY?sig=Ws9TiS1_xX5XQN2FKSjEzdTi-NcmthpSc7cHOsujkxo
           bash archive-test.sh
-          find . -type f -name 'Data2.bdt' -print
-          if [ ! -f Data2.bdt ]; then
-            echo "::error::Data2.bdt is not in the repository root."
-            echo "Add the step that downloads your existing archive artifact."
-            exit 1
-          fi
 
       - name: Extract mapped resource
         shell: bash
@@ -34,7 +28,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
-          archive = Path("Data2.bdt")
+          archive = Path("${{ github.workspace }}/Sekiro/Data2.bdt")
           offset = 237771568
           size = 7605872
           output = Path("common_body.tpf.dcx")
