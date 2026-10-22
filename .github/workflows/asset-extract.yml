@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          BDT="{{ github.workspace }}/Sekiro/Data2.bdt"
+          BDT="${{ github.workspace }}/Sekiro/Data2.bdt"
 
           if [ -z "$BDT" ]; then
             echo "::error::The downloaded artifact does not contain Data2.bdt."
