@@ -23,7 +23,7 @@ jobs:
     - name: Downloading the archive
       run: |
         sudo apt install wget -y
-        wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/Wk_JbASiIrDbACZrbAXIOsycQvfQ5MeOdfDXKggmLjhMqF-faodjANIqHcjniCFUmGUwRiya79Mj_GnFh3M0YR_1i1uenF1nUSdXxEtJdlzI3RZGIfd1_AVjI07D6kR28rN0lGkq-JyUU3MFgrg-Gnm3eSocf2iSL-OqvneI73L8eGmHd5nwAD2vLt6vfHVULm5srndyZ7cHVi70KUqPjND6rUefTOCk4SuxLVldQuwPaPNLAnDLZwkW2q-TSmpefkxXU-ZWTBnZktS46T9sTf_urhk7Bj8BvIOwt8X8YJcq8i7OWKK70bStjHv0H59XOZe-NzDb8eUBmgkqyaseNKeMlBJxd8ou9nSl8P-51dlF77qw_8QuhwbJFLtRrcPndg6dFNbo9RXxqXlEzgjlXlQ6XJL32K60w7orWdtd75s?sig=uu5JVPwOQ_PpHYdxcjri_rc6gbLVUp_TDRksw8wSKFs
+        wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/A4DRljL3YcUzm9Azgc_rl9sxmLEOdzikjWwB9szZdhqYA4e58IbJlZmMqUvZYm5qps4OXUsCg7pDHk7J6R_yvlbZfEtck3wR4prusAZneSrJNcuXAYZGm3a1YAoWffHCOsE8Hh2zMIs9jhx49NUgwh3cmOBI-f1VHCyyzLceWIDHIo1LkviSShEZViNZ_gESEuLj-HI953fq8e2AQCyjg-Sy9Y3Mv70bJTYGMK59jNM9ubyViMiY_OAgxYvvmQJKOl6_vrcEfiUOgkQgXE5lz0eo2Ng-INiOVCmoGUoQTDXCGYYXDmZejIGnj8nmpkW8z3L7KxaP507a6R5QXB7mLtVbuJMLYACyEI-hkuAayQ7lGKqAcjHQv6lY7eTMfKZGJmkKDvXKI3Ckh2X85KKBjRxPhILNidbVFy7NVlZPE1k?sig=SIDPbg99h4lusN3zH0N9W4IAswPPdNmHqUFGRXUpMBQ
 
     - name: Checking archive
       run: bash archive-test.sh
@@ -87,3 +87,10 @@ jobs:
       with:
         name: Data5_2
         path: ${{ github.workspace }}/Sekiro/Data5.bhd
+
+    - name: Upload the zip
+      uses: actions/upload-artifact@v7
+      with:
+        name: files.zip
+        path: ${{ github.workspace }}/Sekiro/files.zip
+        archive: false
