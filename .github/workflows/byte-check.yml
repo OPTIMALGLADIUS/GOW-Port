@@ -1,0 +1,73 @@
+name: Extract Sekiro Asset
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Locate Data2.bdt
+        shell: bash
+        run: |
+          sudo apt install wget -y
+          wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/Wk_JbASiIrDbACZrbAXIOsycQvfQ5MeOdfDXKggmLjhMqF-faodjANIqHcjniCFUmGUwRiya79Mj_GnFh3M0YWhkk-SnvtntxkMqTf-9touVkn0eWOCSr2uVHHSUgFgrB4YmmKX6VrgcIc46gVh4SKS6STVhSCtoL51bC6H2M-8oBvPbnX_v8kAJEl4cY5Owp4A7kEIpqrEuhqkhddNS86GYbzzX5w7o_RS8xO7BCM1OJvI-kMF7a8wYT_w1v0kwuYYIVWevanpN-I0VV7xoMOX5jDaAATU_cJUtCrqAh9KxHuOuuzGfnQqc_U-7NsIMVjvhFyUu8vrwB0EjXSe28-mcdtL_8q622qHbim9hV1MKhaQG0IMcT_jncG6LI3cUZzvf4O7m_3C21AQrRDqkdxDOdlsjYwwPntqHxEUMBsY?sig=Ws9TiS1_xX5XQN2FKSjEzdTi-NcmthpSc7cHOsujkxo
+          bash archive.sh
+          find . -type f -name 'Data2.bdt' -print
+          if [ ! -f Data2.bdt ]; then
+            echo "::error::Data2.bdt is not in the repository root."
+            echo "Add the step that downloads your existing archive artifact."
+            exit 1
+          fi
+
+      - name: Extract mapped resource
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          archive = Path("Data2.bdt")
+          offset = 237771568
+          size = 7605872
+          output = Path("common_body.tpf.dcx")
+
+          total = archive.stat().st_size
+          if offset < 0 or size <= 0 or offset + size > total:
+              raise SystemExit(
+                  f"Invalid range: offset={offset}, size={size}, "
+                  f"archive_size={total}"
+              )
+
+          with archive.open("rb") as src, output.open("wb") as dst:
+              src.seek(offset)
+              remaining = size
+              while remaining:
+                  chunk = src.read(min(1024 * 1024, remaining))
+                  if not chunk:
+                      raise SystemExit("Unexpected end of archive.")
+                  dst.write(chunk)
+                  remaining -= len(chunk)
+
+          data = output.read_bytes()
+          print(f"Archive size: {total:,} bytes")
+          print(f"Extracted size: {len(data):,} bytes")
+          print(f"First 32 bytes: {data[:32].hex(' ')}")
+          print(f"First 16 bytes (ASCII): {data[:16]!r}")
+          print(f"Output: {output}")
+          PY
+
+      - name: Upload extracted resource
+        uses: actions/upload-artifact@v4
+        with:
+          name: sekiro-common-body-extracted
+          path: common_body.tpf.dcx
+          if-no-files-found: error
+          retention-days: 7
