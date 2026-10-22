@@ -26,22 +26,11 @@ jobs:
           wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/HwCmxFMLdX4Jpnc5QwzZd6keZiVRUN27rnI26YqUX96Sd55TOYl4BdsWA2K9VQPKqHizK5f2IrK0HToj3Ct0fezUiNcF2u1NS8MtTh-dnnkERcg29Z_cGnQbXPeXwoPTA1wbCjkQphuLElU7glQ7jz7-KQ1ptHRsku7qc6_lNPPgc1AIJhyhtDXLE1ximemMy_JycI3v_C9V04hy_svovBf9lajqI-rNP-lyL2cFoRWggoVdW37wPmynbsAd78XHFrYu1Sgtl1swuvXoqa86OgWl0iXRZGCLLp-dO5OMCxGu9p4a4B9r9UBUy80rBpzUX4qjwRl4rsWtRC-uxJSPR_SB1R_p5RPnRI3WuMMNDGIrgjc5xvKuyRwA_UzY7IYEseYuWJW3vfdcwrfpSokNDXJqMBiNJR-v5kXdd0uWljA?sig=jfKtlQzZQRheyI8FEVV2bfcwKk_cYAUuOWZZEdz2x0U
           bash archive-test.sh
 
-      - name: Locate archive files
-        run: |
-          set -euo pipefail
-
-          echo "Files downloaded:"
-          find . -type f -printf '%p (%s bytes)\n'
-
-          echo
-          echo "Looking for Data2 BDT:"
-          find . -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print
-
       - name: Prepare target extraction
         run: |
           set -euo pipefail
 
-          BDT="$(find . -type f -iname '{{ github.workspace }}/Sekiro/Data2.bdt' -print -quit)"
+          BDT="{{ github.workspace }}/Sekiro/Data2.bdt"
 
           if [ -z "$BDT" ]; then
             echo "::error::The downloaded artifact does not contain Data2.bdt."
