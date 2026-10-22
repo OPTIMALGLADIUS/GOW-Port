@@ -27,14 +27,20 @@ jobs:
           bash archive-test.sh
 
       - name: Prepare target extraction
+        shell: bash
         run: |
           set -euo pipefail
 
           BDT="${{ github.workspace }}/Sekiro/Data2.bdt"
 
-          if [ -z "$BDT" ]; then
-            echo "::error::The downloaded artifact does not contain Data2.bdt."
-            echo "Check the artifact listing above and use the artifact that contains the BDT."
+          # Create the output directory before writing any files.
+          mkdir -p output
+
+          # Check the actual file, not whether the path variable is empty.
+          if [ ! -f "$BDT" ]; then
+            echo "::error::Data2.bdt not found at $BDT"
+            echo "Files extracted by archive-test.sh:"
+            find "$GITHUB_WORKSPACE" -type f -iname 'Data2.bdt' -print
             exit 1
           fi
 
@@ -50,6 +56,7 @@ jobs:
           output = "output/common_body.raw"
 
           actual_size = os.path.getsize(source)
+
           if offset + size > actual_size:
               raise SystemExit(
                   f"Target range exceeds file size: "
