@@ -1,4 +1,4 @@
-name: Sekiro Asset Extraction - Data2
+name: Windows
 
 on:
   workflow_dispatch:
