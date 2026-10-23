@@ -1,0 +1,49 @@
+name: Sekiro Asset Extraction - Data2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installing dotnet
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.100
+
+      - name: Downloading required files
+        run: |
+          choco install wget -y
+          chmod +x archive-test.bat
+          wget -O Sekiro.zip https://tunnel5.dlproxy.uk/download/HwCmxFMLdX4Jpnc5QwzZd6keZiVRUN27rnI26YqUX96Sd55TOYl4BdsWA2K9VQPKqHizK5f2IrK0HToj3Ct0fezUiNcF2u1NS8MtTh-dnnkERcg29Z_cGnQbXPeXwoPTA1wbCjkQphuLElU7glQ7jz7-KQ1ptHRsku7qc6_lNPPgc1AIJhyhtDXLE1ximemMy_JycI3v_C9V04hy_svovBf9lajqI-rNP-lyL2cFoRWggoVdW37wPmynbsAd78XHFrYu1Sgtl1swuvXoqa86OgWl0iXRZGCLLp-dO5OMCxGu9p4a4B9r9UBUy80rBpzUX4qjwRl4rsWtRC-uxJSPR_SB1R_p5RPnRI3WuMMNDGIrgjc5xvKuyRwA_UzY7IYEseYuWJW3vfdcwrfpSokNDXJqMBiNJR-v5kXdd0uWljA?sig=jfKtlQzZQRheyI8FEVV2bfcwKk_cYAUuOWZZEdz2x0U
+          git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
+          git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
+          git clone https://github.com/soulsmods/SoulsFormatsNEXT.git
+          .\archive-test.bat
+
+      - name: Setting-up the unpacker
+        run: |
+          cd SekiroArchiveInspector
+          dotnet build
+          dotnet run -- --extract ../Sekiro/Data2.bhd ../Sekiro/Data2.bdt 0xF92A250B output
+          dotnet run -- --extract-tpf output/0xF92A250B.decrypted.bin output/common_body
+
+      - name: Upload files
+        uses: actions/upload-artifact@v7
+        with:
+          name: common_body
+          path: ${{ github.workspace }}/SekiroArchiveInspector/output/
