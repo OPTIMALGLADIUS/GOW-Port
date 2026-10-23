@@ -1,4 +1,3 @@
-Invoke-WebRequest -Uri "https://7-zip.org" -OutFile "$env:TEMP\7zip_installer.exe"
-Start-Process -FilePath "$env:TEMP\7zip_installer.exe" -ArgumentList "/S" -Wait
-Remove-Item "$env:TEMP\7zip_installer.exe"
+curl.exe -L --fail --retry 3 -o 7z_setup.exe https://github.com/ip7z/7zip/releases/download/26.05/7z2605-x64.exe
+.\7z_setup.exe /S
 7z.exe x Sekiro.zip -o$PWD
