@@ -66,6 +66,9 @@ jobs:
         shell: pwsh
         run: |
           ls Sekiro
+          cd SoulsFormatsNEXT/SoulsFormats
+          dotnet build
+          cd ${{ github.workspace }}
           cd SekiroArchiveInspector
           dotnet build
           dotnet run -- --extract ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt 0xF92A250B output
