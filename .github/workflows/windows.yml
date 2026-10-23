@@ -33,7 +33,35 @@ jobs:
           git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
           git clone https://github.com/soulsmods/SoulsFormatsNEXT.git
           .\archive-test.bat
+          
+      - name: Configure Oodle
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
 
+          $oodle = Get-ChildItem `
+            "$env:GITHUB_WORKSPACE\Sekiro" `
+            -Recurse `
+            -File `
+            -Filter "oo2core*_win64.dll" `
+            -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+
+          if (!$oodle) {
+            throw "No oo2core*_win64.dll found in Sekiro files."
+          }
+
+          Write-Host "Found Oodle: $($oodle.FullName)"
+
+          $target = "$env:GITHUB_WORKSPACE\SekiroArchiveInspector\bin\Debug\net10.0"
+
+          New-Item -ItemType Directory -Force -Path $target | Out-Null
+
+          Copy-Item $oodle.FullName $target -Force
+
+          Write-Host "Copied Oodle to: $target"
+          Get-ChildItem $target -Filter "oo2core*.dll"
+          
       - name: Setting-up the unpacker
         shell: pwsh
         run: |
