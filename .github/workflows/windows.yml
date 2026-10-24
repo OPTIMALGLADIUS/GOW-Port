@@ -28,7 +28,7 @@ jobs:
       - name: Downloading required files
         shell: pwsh
         run: |
-          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/Wk_JbASiIrDbACZrbAXIOsycQvfQ5MeOdfDXKggmLjhMqF-faodjANIqHcjniCFUmGUwRiya79Mj_GnFh3M0Yd6kMxtIz1LLPXoZbLtjF9lcYQqZIHSwjpdbl-u7zs7dGwSBiWDF5CSPjQGLqlT4faK8YMDDa6j7N98Cgic5-t_rVsccMN6oTwfmIAhJcDFqmwyb_1Dbnl5SbVjm4wMBTsUtFi441fQazmoo7UsZOEC9v6m3NKyXB7Dn8R3hoGbrMV8mOdL4nEih1Cjd-AdUyJtrCllmTjdZFmmg_qPBlgZ5dM_YOW00AXDDb1bDpUDzSbQZJ-N6hZsTWOYXa-Kug5shYZIVx6a1ePsMrJiYmA7w7LVbTvVFhLuJsH5EzbxTWBIjas5jMQkf-Oxvhb1wU5bye54BkZogrNrsfFGX3OE?sig=Sq8ybkA54THn8jLy21tjlmfPn03rAH_6H7l9l2xj2As
+          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/Wk_JbASiIrDbACZrbAXIOsycQvfQ5MeOdfDXKggmLjhMqF-faodjANIqHcjniCFUmGUwRiya79Mj_GnFh3M0Yd6kMxtIz1LLPXoZbLtjF9lcYQqZIHSwjpdbl-u7zs7dGwSBiWDF5CSPjQGLqlT4faK8YMDDa6j7N98Cgic5-t-R0m5p-Lyr1coGHhSKTxvm98YZRwHC3IC41t2oN3hz1cpa0V3jO390B1dKrkOQxg5BYKegxIV4JyuNjsdsm1eqKOyBsQhVWAovO3N1g6Y9HqgNR5aia8aE9yifMNxsuS_ZIIjzbqGo_BM_iidPh7iCxHc6MAYUqsyb8DPzmvJn0944v2HT9eueiZoIriaXKnuTel72UsJuyCzDoa-5If8Vesa_PpIWnJ2E7d6pKaFUEy22p5x7TlwWHfcNvgM1m7Y?sig=gUl-KnZW-sCGXaxNw0FvNRGZyZKXbXsCGsJgDDokVOE
           git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
           git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
           git clone https://github.com/soulsmods/SoulsFormatsNEXT.git
