@@ -28,7 +28,7 @@ jobs:
       - name: Downloading required files
         shell: pwsh
         run: |
-          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/g8Yi2FxFEfmVKVki-5d2uVvslqeBPzFJagIN1CIa-F49thS3eqFfql11cj2KlnSCGvmYPU4KrnXJomW196RrciaRT9eixXLPpSIDtWq5Cs4prWxlpP2jglrji2NTlgSEdyG399h8bRQimtiAKGWqQ2rbtNup1xCwTFv6GFXDqEqLVstT4L20Reu-2wRDYbpMlXW4rIbkJlDelajcvwDmvwqup_fBgSd0frOb-_AF6hOr6zAc-EkLBXfi79PIqWMuyTX58jTb13bGVZo5dtMC_dZ_aaKYUVteqI7L7MHMGhxf6ioKTyevDaTlyNIGN0TrPxz2uktRx-PF4YzKCexjUMXl_v_YoyIk2LF5F6WKQcE8lQ3eqm-AdoieDC-OCMzlrUVFY9Gv2114_tfEazEPMHjqKnioLtmkLQZ0vMQxMP0?sig=WFVy1tFvAXkmSx9wxlghrbly2bMaCF5II1i1UElTp7k
+          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/ydC_12_C91Bn7yaBPYaYuWzGBgZudUPhbgdz1776SXAnzX8NMAEw-yY7MHzK5pNccRy_mOAHc7KQf3RDXfTNrm_8w7MYxQvO0IUizSiJxd8gSxe3XnjST1ZY3Rxxe0ahnXRE304bvSytrqQMueHhtLttaj6YddLIv_TzJ2K3q6d3SqL7D9wPCZ_IICtfPFGagANwS57gyTOEgdxiM8mOABbKo6gy-6PxtFL2yDO66vQkHamu_3G2kDEWGcJLN19YUh9L2jxooBZ31MBD9Wcxtxhwnjk2qBXfFO5b9QcOmjC_CnqAavejjFwPP2ZCdpQU1Cgd3GYPEING4MwXSQweJnqi-aLYPW78-kCaTMqe-QO20Dc3MsgB1kOBzcD17tIHEIBR9w00CyhKG4DjjGVFwPkCoFbH9dtmfvg9xvyFyVk?sig=J2YUWvbuH6wkHrnPDTCK0ALxmGYO42h5DYyL3vXPLas
           git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
           git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
           git clone https://github.com/soulsmods/SoulsFormatsNEXT.git
@@ -73,6 +73,12 @@ jobs:
           dotnet build
           dotnet run -- --extract ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt 0xF92A250B output
           dotnet run -- --extract-tpf output\0xF92A250B.decrypted.bin output\common_body
+
+      - name: Texture decompression
+        shell: pwsh
+        run: |
+          winget install Microsoft.DirectXTex.Texconv
+          texconv -ft png -f R8G8B8A8_UNORM ${{ github.workspace }}\SekiroArchiveInspector\output\common_body\textures\0000_FC_A_0000_Armor_Color_a.dds -o ${{ github.workspace }}\SekiroArchiveInspector\ouput
 
       - name: Upload files
         uses: actions/upload-artifact@v7
