@@ -36,43 +36,56 @@ jobs:
           git clone https://github.com/soulsmods/SoulsFormatsNEXT.git
           .\archive-test.bat
           
-      - name: Configure Oodle
+      - name: Build SoulsFormatsNEXT and SekiroArchiveInspector
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
 
-          $oodle = Get-ChildItem `
-            "$env:GITHUB_WORKSPACE\Sekiro" `
-            -Recurse `
-            -File `
-            -Filter "oo2core*_win64.dll" `
+          Push-Location "${{ github.workspace }}\SoulsFormatsNEXT\SoulsFormats"
+          dotnet build
+          if ($LASTEXITCODE -ne 0) {
+            throw "SoulsFormatsNEXT build failed."
+          }
+          Pop-Location
+
+          Push-Location "${{ github.workspace }}\SekiroArchiveInspector"
+          dotnet build
+          if ($LASTEXITCODE -ne 0) {
+            throw "SekiroArchiveInspector build failed."
+          }
+          Pop-Location
+
+      - name: Configure Oodle for runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $oodle = Get-ChildItem "${{ github.workspace }}\Sekiro" `
+            -Recurse -File -Filter "oo2core_6_win64.dll" `
             -ErrorAction SilentlyContinue |
             Select-Object -First 1
 
           if (!$oodle) {
-            throw "No oo2core*_win64.dll found in Sekiro files."
+            throw "Sekiro's oo2core_6_win64.dll was not found."
           }
 
-          Write-Host "Found Oodle: $($oodle.FullName)"
+          $runtimeDir = "${{ github.workspace }}\SekiroArchiveInspector\bin\Debug\net10.0"
 
-          $target = "$env:GITHUB_WORKSPACE\SekiroArchiveInspector\bin\Debug\net10.0"
+          if (!(Test-Path $runtimeDir)) {
+            throw "Inspector runtime directory not found: $runtimeDir"
+          }
 
-          New-Item -ItemType Directory -Force -Path $target | Out-Null
+          Copy-Item $oodle.FullName `
+            (Join-Path $runtimeDir "oo2core_6_win64.dll") -Force
 
-          Copy-Item $oodle.FullName $target -Force
-
-          Write-Host "Copied Oodle to: $target"
-          Get-ChildItem $target -Filter "oo2core*.dll"
+          Write-Host "Oodle copied to runtime directory:"
+          Get-ChildItem $runtimeDir -Filter "oo2core_6_win64.dll"
           
       - name: Setting-up the unpacker
         shell: pwsh
         run: |
           ls Sekiro
-          cd SoulsFormatsNEXT/SoulsFormats
-          dotnet build
-          cd ${{ github.workspace }}
-          cd SekiroArchiveInspector
-          dotnet build
+          cd ${{ github.workspace }}\SekiroArchiveInspector
           dotnet run -- --extract ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt 0xF92A250B output
           dotnet run -- --extract-tpf output\0xF92A250B.decrypted.bin output\common_body
 
