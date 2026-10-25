@@ -119,7 +119,7 @@ jobs:
 
           $inputFile = Join-Path `
             $env:GITHUB_WORKSPACE `
-            "SekiroArchiveInspector\output\common_body\textures\0000_FC_A_0000_Armor_Color_a.dds"
+            "SekiroArchiveInspector\output\common_body\textures\*.dds"
 
           $outputDir = Join-Path `
             $env:GITHUB_WORKSPACE `
