@@ -33,7 +33,7 @@ jobs:
           curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/ydC_12_C91Bn7yaBPYaYuWzGBgZudUPhbgdz1776SXAnzX8NMAEw-yY7MHzK5pNccRy_mOAHc7KQf3RDXfTNrm_8w7MYxQvO0IUizSiJxd8gSxe3XnjST1ZY3Rxxe0ahnXRE304bvSytrqQMueHhtLttaj6YddLIv_TzJ2K3q6d3SqL7D9wPCZ_IICtfPFGagANwS57gyTOEgdxiM8mOABbKo6gy-6PxtFL2yDO66vQkHamu_3G2kDEWGcJLN19YUh9L2jxooBZ31MBD9Wcxtxhwnjk2qBXfFO5b9QcOmjC_CnqAavejjFwPP2ZCdpQU1Cgd3GYPEING4MwXSQweJnqi-aLYPW78-kCaTMqe-QO20Dc3MsgB1kOBzcD17tIHEIBR9w00CyhKG4DjjGVFwPkCoFbH9dtmfvg9xvyFyVk?sig=J2YUWvbuH6wkHrnPDTCK0ALxmGYO42h5DYyL3vXPLas
           git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
           git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
-          git clone https://github.com/soulsmods/SoulsFormatsNEXT.git
+          git clone https://github.com/OPTIMALGLADIUS/SoulsFormatsNEXT.git
           .\archive-test.bat
           
       - name: Build SoulsFormatsNEXT and SekiroArchiveInspector
