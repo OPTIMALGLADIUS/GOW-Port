@@ -30,7 +30,7 @@ jobs:
       - name: Downloading required files
         shell: pwsh
         run: |
-          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/ydC_12_C91Bn7yaBPYaYuWzGBgZudUPhbgdz1776SXAnzX8NMAEw-yY7MHzK5pNccRy_mOAHc7KQf3RDXfTNrm_8w7MYxQvO0IUizSiJxd8gSxe3XnjST1ZY3Rxxe0ahnXRE304bvSytrqQMueHhtLttaj6YddLIv_TzJ2K3q6d3SqL7D9wPCZ_IICtfPFGagANwS57gyTOEgdxiM8mOABbKo6gy-6PxtFL2yDO66vQkHamu_3G2kDEWGcJLN19YUh9L2jxooBZ31MBD9Wcxtxhwnjk2qBXfFO5b9QcOmjC_CnqAavejjFwPP2ZCdpQU1Cgd3GYPEING4MwXSQweJnqi-aLYPW78-kCaTMqe-QO20Dc3MsgB1kOBzcD17tIHEIBR9w00CyhKG4DjjGVFwPkCoFbH9dtmfvg9xvyFyVk?sig=J2YUWvbuH6wkHrnPDTCK0ALxmGYO42h5DYyL3vXPLas
+          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/-n413Xy4X4lReGqlNAqPDCohkx4WUeFwUN1pfgrQJu-LM1Hf86w1XEjcUtl7J-lPc_d_Aa2ETSfAqm3OkD2bDvnAt9SnkbVFtytrNu-A5BtPdi10qS610zvYLQjzp3g0B3OgjUmL7DeP7f9aFQgA_XWJ9-E4OC2w99F_IjaO3PLwLZMCXo8lqtgWEj0DgALUEDBBoKs6Vlch9vpFT-VYjqYDu_QqxNd0vyNHdmFA3FkUQlLwpqoCJAePHvO3HQuu3Xvy-JfQL6cHk9_rH0K6MoCO9DRNAiN-dRHPmezUFRKZnaaF4otHJs8mvABq-qpSS1RjAUoCItp5dib8jliZcg-_N99EfFanp6s3yQU-jYEnPFPhCESr5Y_mQSRgwUoZT7JafyfMGqfLFrQTO1BaR4Pj7NZO9Y0aRV0AW1Hpztc?sig=saKCWhFA7ez4YEVgtcmH6vPZalaDTq4O34DilcrioDU
           git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
           git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
           git clone https://github.com/OPTIMALGLADIUS/SoulsFormatsNEXT.git
@@ -86,7 +86,7 @@ jobs:
         run: |
           ls Sekiro
           cd ${{ github.workspace }}\SekiroArchiveInspector
-          dotnet run -- --extract ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt 0xF92A250B output
+          dotnet run -- --extract-all ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt output\Data2
           dotnet run -- --extract-tpf output\0xF92A250B.decrypted.bin output\common_body
 
       - name: Texture decompression
