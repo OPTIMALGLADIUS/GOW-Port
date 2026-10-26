@@ -87,7 +87,7 @@ jobs:
           ls Sekiro
           cd ${{ github.workspace }}\SekiroArchiveInspector
           dotnet run -- --extract-all ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt output\Data2
-          dotnet run -- --extract-tpf output\0xF92A250B.decrypted.bin output\common_body
+          dotnet run -- --extract-tpf output\0xF92A250B.bin output\common_body
 
       - name: Texture decompression
         shell: pwsh
