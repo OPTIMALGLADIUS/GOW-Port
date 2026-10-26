@@ -20,40 +20,84 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Installing dotnet
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             10.0.402
             9.0.319
 
-      - name: Downloading required files
-        shell: pwsh
-        run: |
-          curl.exe -L --fail --retry 3 -o Sekiro.rar https://tunnel5.dlproxy.uk/download/-n413Xy4X4lReGqlNAqPDCohkx4WUeFwUN1pfgrQJu-LM1Hf86w1XEjcUtl7J-lPc_d_Aa2ETSfAqm3OkD2bDvnAt9SnkbVFtytrNu-A5BtPdi10qS610zvYLQjzp3g0B3OgjUmL7DeP7f9aFQgA_XWJ9-E4OC2w99F_IjaO3PLwLZMCXo8lqtgWEj0DgALUEDBBoKs6Vlch9vpFT-VYjqYDu_QqxNd0vyNHdmFA3FkUQlLwpqoCJAePHvO3HQuu3Xvy-JfQL6cHk9_rH0K6MoCO9DRNAiN-dRHPmezUFRKZnaaF4otHJs8mvABq-qpSS1RjAUoCItp5dib8jliZcg-_N99EfFanp6s3yQU-jYEnPFPhCESr5Y_mQSRgwUoZT7JafyfMGqfLFrQTO1BaR4Pj7NZO9Y0aRV0AW1Hpztc?sig=saKCWhFA7ez4YEVgtcmH6vPZalaDTq4O34DilcrioDU
-          git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
-          git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
-          git clone https://github.com/OPTIMALGLADIUS/SoulsFormatsNEXT.git
-          .\archive-test.bat
-          
-      - name: Build SoulsFormatsNEXT and SekiroArchiveInspector
+      - name: Download required files
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
 
-          Push-Location "${{ github.workspace }}\SoulsFormatsNEXT\SoulsFormats"
-          dotnet build
+          curl.exe -L --fail --retry 3 `
+            -o Sekiro.rar `
+            "https://tunnel5.dlproxy.uk/download/-n413Xy4X4lReGqlNAqPDCohkx4WUeFwUN1pfgrQJu-LM1Hf86w1XEjcUtl7J-lPc_d_Aa2ETSfAqm3OkD2bDvnAt9SnkbVFtytrNu-A5BtPdi10qS610zvYLQjzp3g0B3OgjUmL7DeP7f9aFQgA_XWJ9-E4OC2w99F_IjaO3PLwLZMCXo8lqtgWEj0DgALUEDBBoKs6Vlch9vpFT-VYjqYDu_QqxNd0vyNHdmFA3FkUQlLwpqoCJAePHvO3HQuu3Xvy-JfQL6cHk9_rH0K6MoCO9DRNAiN-dRHPmezUFRKZnaaF4otHJs8mvABq-qpSS1RjAUoCItp5dib8jliZcg-_N99EfFanp6s3yQU-jYEnPFPhCESr5Y_mQSRgwUoZT7JafyfMGqfLFrQTO1BaR4Pj7NZO9Y0aRV0AW1Hpztc?sig=saKCWhFA7ez4YEVgtcmH6vPZalaDTq4O34DilcrioDU"
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Sekiro archive download failed."
+          }
+
+          git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
+          git clone https://github.com/Nordgaren/UXM-Selective-Unpack.git
+          git clone https://github.com/OPTIMALGLADIUS/SoulsFormatsNEXT.git
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "A repository clone failed."
+          }
+
+          .\archive-test.bat
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Archive preparation failed."
+          }
+
+      - name: Build SoulsFormatsNEXT
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $project = "${{ github.workspace }}\SoulsFormatsNEXT\SoulsFormats\SoulsFormats.csproj"
+
+          dotnet build $project --configuration Release
+
           if ($LASTEXITCODE -ne 0) {
             throw "SoulsFormatsNEXT build failed."
           }
-          Pop-Location
 
-          Push-Location "${{ github.workspace }}\SekiroArchiveInspector"
-          dotnet build
+      - name: Build SekiroArchiveInspector
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $project = "${{ github.workspace }}\SekiroArchiveInspector\SekiroArchiveInspector.csproj"
+
+          dotnet build $project --configuration Release
+
           if ($LASTEXITCODE -ne 0) {
             throw "SekiroArchiveInspector build failed."
           }
-          Pop-Location
+
+      - name: Verify required archive files
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $bhd = "${{ github.workspace }}\Sekiro\Data2.bhd"
+          $bdt = "${{ github.workspace }}\Sekiro\Data2.bdt"
+
+          if (!(Test-Path $bhd)) {
+            throw "Data2.bhd was not found: $bhd"
+          }
+
+          if (!(Test-Path $bdt)) {
+            throw "Data2.bdt was not found: $bdt"
+          }
+
+          Write-Host "Archive files found:"
+          Get-Item $bhd, $bdt | Select-Object Name, Length
 
       - name: Configure Oodle for runtime
         shell: pwsh
@@ -61,7 +105,8 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           $oodle = Get-ChildItem "${{ github.workspace }}\Sekiro" `
-            -Recurse -File -Filter "oo2core_6_win64.dll" `
+            -Recurse -File `
+            -Filter "oo2core_6_win64.dll" `
             -ErrorAction SilentlyContinue |
             Select-Object -First 1
 
@@ -69,27 +114,68 @@ jobs:
             throw "Sekiro's oo2core_6_win64.dll was not found."
           }
 
-          $runtimeDir = "${{ github.workspace }}\SekiroArchiveInspector\bin\Debug\net10.0"
+          $runtimeDir = "${{ github.workspace }}\SekiroArchiveInspector\bin\Release\net10.0"
 
           if (!(Test-Path $runtimeDir)) {
             throw "Inspector runtime directory not found: $runtimeDir"
           }
 
           Copy-Item $oodle.FullName `
-            (Join-Path $runtimeDir "oo2core_6_win64.dll") -Force
+            (Join-Path $runtimeDir "oo2core_6_win64.dll") `
+            -Force
 
           Write-Host "Oodle copied to runtime directory:"
-          Get-ChildItem $runtimeDir -Filter "oo2core_6_win64.dll"
-          
-      - name: Setting-up the unpacker
+          Get-Item (Join-Path $runtimeDir "oo2core_6_win64.dll")
+
+      - name: Run SekiroArchiveInspector extraction
         shell: pwsh
         run: |
-          ls Sekiro
-          cd ${{ github.workspace }}\SekiroArchiveInspector
-          dotnet run -- --extract-all ${{ github.workspace }}\Sekiro\Data2.bhd ${{ github.workspace }}\Sekiro\Data2.bdt output\Data2
+          $ErrorActionPreference = "Stop"
 
-      - name: Upload files
+          $projectDir = "${{ github.workspace }}\SekiroArchiveInspector"
+          $bhd = "${{ github.workspace }}\Sekiro\Data2.bhd"
+          $bdt = "${{ github.workspace }}\Sekiro\Data2.bdt"
+          $outputDir = Join-Path $projectDir "output\Data2"
+
+          New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
+
+          Push-Location $projectDir
+
+          try {
+            dotnet run `
+              --configuration Release `
+              --no-build `
+              -- `
+              --extract-all `
+              $bhd `
+              $bdt `
+              $outputDir
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "SekiroArchiveInspector extraction failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          $extractedFiles = Get-ChildItem $outputDir -Recurse -File
+
+          if ($extractedFiles.Count -eq 0) {
+            throw "Extraction completed but produced no files."
+          }
+
+          Write-Host "Extraction produced $($extractedFiles.Count) files."
+
+          $extractedFiles |
+            Select-Object -First 20 FullName, Length |
+            Format-Table -AutoSize
+
+      - name: Upload extracted files and reports
         uses: actions/upload-artifact@v7
         with:
           name: common_body
-          path: ${{ github.workspace }}/SekiroArchiveInspector/output/
+          path: |
+            ${{ github.workspace }}/SekiroArchiveInspector/output/
+          if-no-files-found: error
+          retention-days: 7
