@@ -34,7 +34,7 @@ jobs:
 
           curl.exe -L --fail --retry 3 `
             -o Sekiro.rar `
-            "https://tunnel5.dlproxy.uk/download/CyQUAY30fqzj8MUP7lV4qR_92ZUQVdgbeFtfhI1yFBjwB4wiv2eoaCkIafO8CF7xxtnQ0IRKWU4er0ordPk3tKzIb1xjfYmoM1E2SuRaIBjYJ3hGVeCX8r2COfgVevsc68bdX3cuSUDzxrNwUVWtapA84VnkvDffMkj4HiW-y0jsaaxp1uPd9N1zumShJ04JZ1TlPxpCnKaR-IaoW6prvD4lf-gSwli97JkbC2Sh8qo1Oe3Yy0W4y2DxN5YX0BUA_jPW55mwiSeiWU1OAohh18zevnnxy65TCSdyJjyT36RchrzmE0oHZ6VASJOzg8kfEI2_kyz63jGm4as4TvVszRoKAGzACYmOlaN3YY4clmKt09ITTRNCcqgwfTonJut8b1oo_vwXNnJd0NArMMkqK2G95Z0fivK4uD3PdXcO4Go?sig=zfPtCrbjnqox0WxcDgoDTyRGr-oRzKnsaKzra4LWijs"
+            "https://tunnel5.dlproxy.uk/download/CyQUAY30fqzj8MUP7lV4qR_92ZUQVdgbeFtfhI1yFBjwB4wiv2eoaCkIafO8CF7xxtnQ0IRKWU4er0ordPk3tIVWc7d4uUbidSh_qmIy4KTux05yHXOz8o5nq5J0sVDYk_LsmYczqFRRRkVY_zmn7SECHVlU0a8HcFIkjsjdtCSUAj27k09rw8ZKpIiXV-bFfytEfY94Tqv8kA3E6m6W0iS0IydTEOMY2ds8OUYTBQngHDxxVq_LPP4z-i41kCy8La_2Fw1PNGxXyf3ulbfOK_FquBVUNdHh1F6eVZiqDVR4LtAuRj5mF7MqMFQ03N_GYMt1kWAT10ZSW0MFTXAreU1NJhauaw7Bc7EPP83sh5Fvkl-yUnGemc6DvdHUm4kE7R5WAhxjWMS2P3Z53BkxHEHaYrUwZq7hV0RkEBLNQhk?sig=urmwDjIKtmLEKTJ_KPdb4UlTQOn4ivo-qiNIzLDeQHk"
 
           if ($LASTEXITCODE -ne 0) {
             throw "Sekiro archive download failed."
