@@ -176,43 +176,6 @@ jobs:
             Select-Object -First 20 FullName, Length |
             Format-Table -AutoSize
 
-      - name: Classify extracted files
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-
-          $projectDir = "${{ github.workspace }}\SekiroArchiveInspector"
-          $inputDir = Join-Path $projectDir "output\Data2"
-          $classificationDir = Join-Path $projectDir "output\Classification"
-          $csvPath = Join-Path $classificationDir "Data2-classification.csv"
-
-          New-Item -ItemType Directory -Force -Path $classificationDir | Out-Null
-
-          Push-Location $projectDir
-          try {
-            dotnet run `
-              --configuration Release `
-              --no-build `
-              -- `
-              --classify-all `
-              $inputDir `
-              $csvPath
-
-            if ($LASTEXITCODE -ne 0) {
-              throw "Classification failed with exit code $LASTEXITCODE."
-            }
-          }
-          finally {
-            Pop-Location
-          }
-
-          if (!(Test-Path $csvPath)) {
-            throw "Classification CSV was not created: $csvPath"
-          }
-
-          Write-Host "Classification report created:"
-          Get-Item $csvPath | Select-Object FullName, Length
-
       - name: Analyze and decompress payloads
         shell: pwsh
         run: |
@@ -257,6 +220,155 @@ jobs:
 
           Write-Host "Decompressed payload files: $($decompressedFiles.Count)"
 
+      
+      - name: Extract BND4 bundles
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $projectDir = "${{ github.workspace }}\SekiroArchiveInspector"
+          $inputDir = Join-Path $projectDir "output\PayloadAnalysis\Data2"
+          $outputDir = Join-Path $projectDir "output\Bnd4Files"
+          $reportPath = Join-Path $outputDir "bnd4-extraction.json"
+
+          if (!(Test-Path (Join-Path $inputDir "payload-analysis.json"))) {
+            throw "Payload analysis report is missing."
+          }
+
+          New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
+
+          Push-Location $projectDir
+          try {
+            dotnet run `
+              --configuration Release `
+              --no-build `
+              -- `
+              --extract-bnd4 `
+              $inputDir `
+              $outputDir
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "BND4 extraction failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          if (!(Test-Path $reportPath)) {
+            throw "BND4 extraction report was not created."
+          }
+
+          $report = Get-Content $reportPath -Raw | ConvertFrom-Json
+
+          if ($report.ArchivesFound -eq 0) {
+            throw "No BND4 archives were processed."
+          }
+
+          if ($report.ArchivesFailed -ne 0) {
+            throw "One or more BND4 archives failed to extract."
+          }
+
+          if ($report.EntriesExtracted -eq 0) {
+            throw "BND4 extraction produced no entries."
+          }
+
+          Write-Host "BND4 extraction validated."
+          Write-Host "Archives processed: $($report.ArchivesFound)"
+          Write-Host "Entries extracted: $($report.EntriesExtracted)"
+          
+      
+      - name: Classify extracted bundle entries
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $projectDir = "${{ github.workspace }}\SekiroArchiveInspector"
+          $inputDir = Join-Path $projectDir "output\Bnd4Files"
+          $classificationDir = Join-Path $projectDir "output\Classification"
+          $csvPath = Join-Path $classificationDir "BND4-entries.csv"
+
+          New-Item -ItemType Directory -Force -Path $classificationDir | Out-Null
+
+          Push-Location $projectDir
+          try {
+            dotnet run `
+              --configuration Release `
+              --no-build `
+              -- `
+              --classify-all `
+              $inputDir `
+              $csvPath
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Entry classification failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          if (!(Test-Path $csvPath)) {
+            throw "Classification CSV was not created: $csvPath"
+          }
+
+          Write-Host "Bundle-entry classification created:"
+          Get-Item $csvPath | Select-Object FullName, Length
+
+      
+      - name: Clean up original compressed payloads
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $projectDir = "${{ github.workspace }}\SekiroArchiveInspector"
+          $originalDir = Join-Path $projectDir "output\Data2"
+          $payloadDir = Join-Path $projectDir "output\PayloadAnalysis\Data2"
+          $bnd4ReportPath = Join-Path $projectDir "output\Bnd4Files\bnd4-extraction.json"
+          $classificationPath = Join-Path $projectDir "output\Classification\BND4-entries.csv"
+
+          if (!(Test-Path $bnd4ReportPath)) {
+            throw "BND4 report missing; refusing cleanup."
+          }
+
+          if (!(Test-Path $classificationPath)) {
+            throw "Classification report missing; refusing cleanup."
+          }
+
+          $report = Get-Content $bnd4ReportPath -Raw | ConvertFrom-Json
+
+          if ($report.ArchivesFound -eq 0 -or
+              $report.ArchivesFailed -ne 0 -or
+              $report.EntriesExtracted -eq 0) {
+            throw "BND4 validation failed; refusing cleanup."
+          }
+
+          if (!(Test-Path $originalDir) -or !(Test-Path $payloadDir)) {
+            throw "Expected input directories are missing; refusing cleanup."
+          }
+
+          $originalBins = @(
+            Get-ChildItem $originalDir -File -Filter "*.bin" -Recurse
+          )
+
+          $decompressedBins = @(
+            Get-ChildItem $payloadDir -File -Filter "*.decompressed.bin" -Recurse
+          )
+
+          if ($decompressedBins.Count -ne $report.ArchivesSucceeded) {
+            throw "Decompressed-file count does not match successful archive count; refusing cleanup."
+          }
+
+          Write-Host "Original BIN files to remove: $($originalBins.Count)"
+          Write-Host "Decompressed payloads retained: $($decompressedBins.Count)"
+
+          foreach ($file in $originalBins) {
+            Remove-Item -LiteralPath $file.FullName -Force
+          }
+
+          Write-Host "Original compressed payload files removed."
+          Write-Host "Original extraction reports and decompressed payloads retained."
+          
       - name: Summarize generated outputs
         if: always()
         shell: pwsh
@@ -289,7 +401,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: common_body
+          name: sekiro_bnd4_extracted
           path: |
             ${{ github.workspace }}/SekiroArchiveInspector/output/
           if-no-files-found: warn
