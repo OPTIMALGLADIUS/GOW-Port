@@ -276,7 +276,30 @@ jobs:
           Write-Host "BND4 extraction validated."
           Write-Host "Archives processed: $($report.ArchivesFound)"
           Write-Host "Entries extracted: $($report.EntriesExtracted)"
-          
+
+      - name: Extraction of TPF file
+        shell: pwsh
+        run: |
+          $projectDir = Join-Path $PWD "SekiroArchiveInspector"
+
+          $inputFile = Join-Path $projectDir `
+          "output\Data2\00000000F92A250B.bin"
+
+          $outputDir = Join-Path $projectDir `
+          "output\TpfFiles\00000000F92A250B"
+
+          Push-Location $projectDir
+          try {
+            dotnet run --configuration Release -- `
+            --extract-tpf $inputFile $outputDir
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "TPF extraction failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
       
       - name: Classify extracted bundle entries
         shell: pwsh
