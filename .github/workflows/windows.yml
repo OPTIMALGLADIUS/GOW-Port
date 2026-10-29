@@ -342,64 +342,119 @@ jobs:
       - name: Clean up original compressed payloads
         shell: pwsh
         run: |
+          
           $ErrorActionPreference = "Stop"
 
-          $projectDir = "${{ github.workspace }}\SekiroArchiveInspector"
+          $projectDir = "D:\a\GOW-Port\GOW-Port\SekiroArchiveInspector"
           $originalDir = Join-Path $projectDir "output\Data2"
           $payloadDir = Join-Path $projectDir "output\PayloadAnalysis\Data2"
           $bnd4ReportPath = Join-Path $projectDir "output\Bnd4Files\bnd4-extraction.json"
-          $classificationPath = Join-Path $projectDir "output\Classification\BND4-entries.csv"
-
-          if (!(Test-Path $bnd4ReportPath)) {
+          
+          # Require both the BND4 report and the payload-analysis report.
+         
+          if (!(Test-Path -LiteralPath $bnd4ReportPath)) {
             throw "BND4 report missing; refusing cleanup."
           }
 
-          if (!(Test-Path $classificationPath)) {
-            throw "Classification report missing; refusing cleanup."
+          $payloadReports = @(
+            Get-ChildItem `
+               (Join-Path $projectDir "output\PayloadAnalysis") `
+                 -Filter "payload-analysis.json" `
+                 -File `
+                 -Recurse
+          )
+
+          if ($payloadReports.Count -ne 1) {
+            throw "Expected exactly one payload-analysis.json; found $($payloadReports.Count). Refusing cleanup."
           }
 
-          $report = Get-Content $bnd4ReportPath -Raw | ConvertFrom-Json
-
-          if ($report.ArchivesFound -eq 0 -or
-              $report.ArchivesFailed -ne 0 -or
-              $report.EntriesExtracted -eq 0) {
-            throw "BND4 validation failed; refusing cleanup."
+          if (!(Test-Path -LiteralPath $originalDir) -or
+            !(Test-Path -LiteralPath $payloadDir)) {
+            throw "Expected input or payload output directory is missing; refusing cleanup."
           }
 
-          if (!(Test-Path $originalDir) -or !(Test-Path $payloadDir)) {
-            throw "Expected input directories are missing; refusing cleanup."
+          $bndReport = Get-Content -LiteralPath $bnd4ReportPath -Raw |
+            ConvertFrom-Json
+
+          $payloadReport = Get-Content -LiteralPath $payloadReports[0].FullName -Raw |
+            ConvertFrom-Json
+
+          # Validate BND4 extraction independently of total payload count.
+          if ($bndReport.ArchivesSucceeded -le 0 -or
+             $bndReport.ArchivesFailed -ne 0 -or
+             $bndReport.EntriesExtracted -le 0) {
+             throw "BND4 validation failed; refusing cleanup."
+          }
+
+          # Validate the payload-analysis summary.
+          if ($payloadReport.TotalFiles -le 0 -or
+            $payloadReport.Analyzed -ne $payloadReport.TotalFiles -or
+            $payloadReport.Decompressed -ne $payloadReport.TotalFiles -or
+            $payloadReport.Failed -ne 0) {
+            throw "Payload-analysis summary indicates incomplete processing; refusing cleanup."
+          }
+
+          $reportFiles = @($payloadReport.Files)
+
+          if ($reportFiles.Count -ne $payloadReport.TotalFiles) {
+            throw "Payload report entry count does not match TotalFiles; refusing cleanup."
           }
 
           $originalBins = @(
-            Get-ChildItem $originalDir -File -Filter "*.bin" -Recurse
+            Get-ChildItem -LiteralPath $originalDir -File -Filter "*.bin" -Recurse
           )
 
-          $decompressedBins = @(
-            Get-ChildItem $payloadDir -File -Filter "*.decompressed.bin" -Recurse
-          )
-
-          if ($decompressedBins.Count -eq 0) {
-            throw "No decompressed payloads found; refusing cleanup."
+          if ($originalBins.Count -ne $payloadReport.TotalFiles) {
+            throw "Original BIN count does not match payload-analysis TotalFiles; refusing cleanup."
           }
 
-          if ($report.ArchivesSucceeded -le 0) {
-            throw "BND4 report contains no successful archives; refusing cleanup."
+          # Validate every expected decompressed file before deleting anything.
+          $verifiedPayloads = 0
+
+          foreach ($entry in $reportFiles) {
+            if ($entry.Status -ne "Decompressed" -or
+               $entry.Error) {
+               throw "Payload was not successfully decompressed: $($entry.RelativePath)"
+            }
+
+            # Preserve any relative subdirectory structure.
+            $relativeOutput = [IO.Path]::ChangeExtension(
+              $entry.RelativePath, $null
+              ) + ".decompressed.bin"
+
+            $expectedOutput = Join-Path $payloadDir $relativeOutput
+
+            if (!(Test-Path -LiteralPath $expectedOutput -PathType Leaf)) {
+              throw "Expected decompressed payload is missing: $expectedOutput"
+            }
+
+            $actual = Get-Item -LiteralPath $expectedOutput
+
+            if ($actual.Length -le 0 -or
+              $actual.Length -ne $entry.FinalPayloadSizeBytes) {
+              throw "Decompressed payload size validation failed: $expectedOutput"
+            }
+
+            $verifiedPayloads++
           }
 
-          Write-Host "BND4 archives successfully processed: $($report.ArchivesSucceeded)"
-          Write-Host "Decompressed payloads retained: $($decompressedBins.Count)"
-          Write-Host "Count comparison skipped: BND4 and payload counts may differ."
+          if ($verifiedPayloads -ne $payloadReport.Decompressed) {
+            throw "Verified payload count does not match the report; refusing cleanup."
+          }
 
+          Write-Host "BND4 archives extracted: $($bndReport.ArchivesSucceeded)"
+          Write-Host "BND4 entries extracted: $($bndReport.EntriesExtracted)"
+          Write-Host "Successfully decompressed payloads: $verifiedPayloads"
           Write-Host "Original BIN files to remove: $($originalBins.Count)"
-          Write-Host "Decompressed payloads retained: $($decompressedBins.Count)"
 
+          # All checks have passed. Delete only the original BIN files.
           foreach ($file in $originalBins) {
             Remove-Item -LiteralPath $file.FullName -Force
           }
 
-          Write-Host "Original compressed payload files removed."
-          Write-Host "Original extraction reports and decompressed payloads retained."
-          
+          Write-Host "Original compressed BIN files removed."
+          Write-Host "Decompressed payloads and extraction reports retained."
+
       - name: Summarize generated outputs
         if: always()
         shell: pwsh
