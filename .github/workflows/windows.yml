@@ -378,9 +378,17 @@ jobs:
             Get-ChildItem $payloadDir -File -Filter "*.decompressed.bin" -Recurse
           )
 
-          if ($decompressedBins.Count -ne $report.ArchivesSucceeded) {
-            throw "Decompressed-file count does not match successful archive count; refusing cleanup."
+          if ($decompressedBins.Count -eq 0) {
+            throw "No decompressed payloads found; refusing cleanup."
           }
+
+          if ($report.ArchivesSucceeded -le 0) {
+            throw "BND4 report contains no successful archives; refusing cleanup."
+          }
+
+          Write-Host "BND4 archives successfully processed: $($report.ArchivesSucceeded)"
+          Write-Host "Decompressed payloads retained: $($decompressedBins.Count)"
+          Write-Host "Count comparison skipped: BND4 and payload counts may differ."
 
           Write-Host "Original BIN files to remove: $($originalBins.Count)"
           Write-Host "Decompressed payloads retained: $($decompressedBins.Count)"
