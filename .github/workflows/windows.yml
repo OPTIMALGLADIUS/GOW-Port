@@ -34,7 +34,7 @@ jobs:
 
           curl.exe -L --fail --retry 3 `
             -o Sekiro.rar `
-            "https://tunnel5.dlproxy.uk/download/CyQUAY30fqzj8MUP7lV4qR_92ZUQVdgbeFtfhI1yFBjwB4wiv2eoaCkIafO8CF7xxtnQ0IRKWU4er0ordPk3tIVWc7d4uUbidSh_qmIy4KTux05yHXOz8o5nq5J0sVDYk_LsmYczqFRRRkVY_zmn7SECHVlU0a8HcFIkjsjdtCSUAj27k09rw8ZKpIiXV-bFfytEfY94Tqv8kA3E6m6W0iS0IydTEOMY2ds8OUYTBQngHDxxVq_LPP4z-i41kCy8La_2Fw1PNGxXyf3ulbfOK_FquBVUNdHh1F6eVZiqDVR4LtAuRj5mF7MqMFQ03N_GYMt1kWAT10ZSW0MFTXAreU1NJhauaw7Bc7EPP83sh5Fvkl-yUnGemc6DvdHUm4kE7R5WAhxjWMS2P3Z53BkxHEHaYrUwZq7hV0RkEBLNQhk?sig=urmwDjIKtmLEKTJ_KPdb4UlTQOn4ivo-qiNIzLDeQHk"
+            "https://tunnel5.dlproxy.uk/download/CyQUAY30fqzj8MUP7lV4qR_92ZUQVdgbeFtfhI1yFBjwB4wiv2eoaCkIafO8CF7xxtnQ0IRKWU4er0ordPk3tF6oyNYBep2N_23RfHyg9MUTkiTw3HNEPgbKJCHBT7J99ff5QXkHLf8q9Eky_L_X-ME-20PhjqaVFfAD-UE3XZmdZeuKmtHMleNUSE4nt1IAvFMikgRGv01hMX7k6e6kyo-yv4XFutEvfSJhsRUwoGf9z9MK6j-2ItQ_lPJ6DM5pTwDpbDzkVXeWS8t_bTojEB4Gf7tOWnLfLZu3NJWOigaHpx5cFQV2fWMFxrLpsxj6v-9cIQZLnT2PTLaLyN6_r0cjJHjvLuy2JmroDjB1rRSlCGQqFAjiJL3X1FDsJKJAKD6OX7N4IZMSsrpkbaY06eVqRqPsbOCPvvQtaROpazQ?sig=VSEIJFtXqgioWrX7fTkTAIna0GP92pr3N2xheTiyyL4"
 
           if ($LASTEXITCODE -ne 0) {
             throw "Sekiro archive download failed."
@@ -338,6 +338,90 @@ jobs:
           Write-Host "Bundle-entry classification created:"
           Get-Item $csvPath | Select-Object FullName, Length
 
+      
+      - name: Recursively extract nested archives
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $projectDir = Join-Path $env:GITHUB_WORKSPACE "SekiroArchiveInspector"
+          $inputDir = Join-Path $projectDir "output\Bnd4Files"
+          $outputDir = Join-Path $projectDir "output\RecursiveExtraction"
+          $reportPath = Join-Path $outputDir "recursive-extraction.json"
+
+          if (!(Test-Path -LiteralPath $inputDir)) {
+            throw "BND4 output directory is missing: $inputDir"
+          }
+
+          Push-Location $projectDir
+          try {
+            dotnet run --configuration Release --no-build -- `
+              --extract-recursive $inputDir $outputDir
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Recursive extraction failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          if (!(Test-Path -LiteralPath $reportPath)) {
+            throw "Recursive extraction report was not created."
+          }
+
+          $report = Get-Content -LiteralPath $reportPath -Raw |
+            ConvertFrom-Json
+
+          if ($report.FilesVisited -le 0) {
+            throw "Recursive extraction processed no files."
+          }
+
+          if ($report.Failures -ne 0) {
+            throw "Recursive extraction reported $($report.Failures) failures."
+          }
+
+          Write-Host "Recursive extraction validated."
+          Write-Host "Files visited: $($report.FilesVisited)"
+          Write-Host "Containers expanded: $($report.ContainersExpanded)"
+          Write-Host "Entries extracted: $($report.EntriesExtracted)"
+
+      - name: Generate final asset inventory
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $projectDir = Join-Path $env:GITHUB_WORKSPACE "SekiroArchiveInspector"
+          $inputDir = Join-Path $projectDir "output\RecursiveExtraction"
+          $inventoryDir = Join-Path $projectDir "output\Inventory"
+
+          Push-Location $projectDir
+          try {
+            dotnet run --configuration Release --no-build -- `
+              --inventory $inputDir $inventoryDir
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Asset inventory failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          foreach ($name in @(
+            "asset-inventory.json",
+            "asset-inventory.csv",
+            "asset-inventory-summary.json"
+          )) {
+            $path = Join-Path $inventoryDir $name
+
+            if (!(Test-Path -LiteralPath $path)) {
+              throw "Expected inventory report is missing: $path"
+            }
+
+            Get-Item -LiteralPath $path |
+              Select-Object Name, Length
+          }
       
       - name: Clean up original compressed payloads
         shell: pwsh
