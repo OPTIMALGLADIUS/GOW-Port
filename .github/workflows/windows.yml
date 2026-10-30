@@ -29,16 +29,18 @@ jobs:
 
       - name: Download required files and prepare archive
         shell: pwsh
+        env:
+          DOWNLOAD_URL: ${{ secrets.SEKIRO_DOWNLOAD_URL }}
         run: |
           $ErrorActionPreference = "Stop"
 
-          if ([string]::IsNullOrWhiteSpace($env:SEKIRO_DOWNLOAD_URL)) {
+          if ([string]::IsNullOrWhiteSpace($env:DOWNLOAD_URL)) {
             throw "SEKIRO_DOWNLOAD_URL secret is missing."
           }
 
           curl.exe -L --fail --retry 3 --retry-all-errors --retry-delay 5 `
             -o Sekiro.rar `
-            $env:SEKIRO_DOWNLOAD_URL
+            $env:DOWNLOAD_URL
             
           if ($LASTEXITCODE -ne 0) {
             throw "Sekiro archive download failed."
