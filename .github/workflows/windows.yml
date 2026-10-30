@@ -32,10 +32,14 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
 
-          curl.exe -L --fail --retry 3 `
-            -o Sekiro.rar `
-            "https://tunnel5.dlproxy.uk/download/ag1.eyJjIjoidzBxRGFjaXlYYmZNSzc3eHN6dTNaTFcyZEpsU3RNY1ZRcVdZZllQNlFlWS1iaFhtaFgyOVJMcTRPWHpmU1VWaDBDbHNHazhLaEZ5QnMwQ2lzMG8teTQxaXc0cEFCbUltU1hYNVVyZEJ6OUdxbXRIOW9vWEV2Y1NKZFdIT2JJdEhFb2FaTDhrM2tjZ3dDbmtIOTkxVzVHUDZxUmxSbzN4aDRxUmI4OVZ0XzE1MVFuWlNqVTRNc3duVU1iaFM4R2xfVDN5enFDQkQxb0dzQlRQWjRlT3ZKV2dsdWUyMjBJbTluZ1NtZ0tNRlZFd0tmdUduRTlkWGNSODgtMHQ2eTBxVUZHdjl6SWVCeUlqUDVFU01kRkdiM0tYejdlMENVV2dMS0dLcnBlZWM5a2dlTzFNdUIzSnBuMENPNDZNN2NyLW9jVHdKTlpwTC1MSzRNbXpZWXRRRUpJUGNqY2VQTDlXTTFvNHFFQmczdFdldnZsaXdaZnFYY3h2WENzR3dDRFFXT3ZyaF9IRjRVSEJLWUlnTXZRSUFQUSIsImYiOjMwNTUzNCwiaSI6MTc5MzM4NTk5NCwiaXAiOiIyNDA5OjQwZTY6OTpiNGQyOjovNjQiLCJqIjoiRF9EMWQ5blp6R09LQ0E5RyIsImsiOjEsInQiOiJlIiwidiI6MSwieCI6MTc5MzQwNzU5NH0.Em2M_YcEwvzFd-MFGAOJeFVO5MSvE0bzdEJn4UjtDS3Q9SONopM7HxryvhdPbcM1G-bgf9P4ZtUKIGMMZifGCw"
+          if ([string]::IsNullOrWhiteSpace($env:SEKIRO_DOWNLOAD_URL)) {
+            throw "SEKIRO_DOWNLOAD_URL secret is missing."
+          }
 
+          curl.exe -L --fail --retry 3 --retry-all-errors --retry-delay 5 `
+            -o Sekiro.rar `
+            $env:SEKIRO_DOWNLOAD_URL
+            
           if ($LASTEXITCODE -ne 0) {
             throw "Sekiro archive download failed."
           }
