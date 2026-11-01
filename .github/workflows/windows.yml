@@ -42,7 +42,11 @@ jobs:
             -o MEGAcmdSetup.exe `
             "https://mega.nz/MEGAcmdSetup64.exe"
 
-          Start-Process -Wait -FilePath "$PWD\MEGAcmdSetup.exe" -ArgumentList "/S"
+          Start-Process -Wait -FilePath "${{ github.workspace }}\MEGAcmdSetup.exe" -ArgumentList "/S"
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "The Setup of MEGA cmd was unsuccessful."
+          }
 
           mega-get $env:DOWNLOAD_URL
             
