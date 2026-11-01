@@ -501,6 +501,34 @@ jobs:
           dumpbin /imports $inputdir\sekiro.exe > $outputdir\sekiro-imports.txt
           dumpbin /dependents $inputdir\sekiro.exe > $outputdir\sekiro-dependents.txt
 
+      - name: Getting D3D11 data
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $gameDir = Join-Path $env:GITHUB_WORKSPACE "Sekiro"
+          $outputDir = Join-Path $env:GITHUB_WORKSPACE "SekiroArchiveInspector\output"
+          $exe = Join-Path $gameDir "sekiro.exe"
+
+          # Search imported API names already reported by DUMPBIN.
+          $imports = Join-Path $outputDir "sekiro-imports.txt"
+
+          Select-String -Path $imports -Pattern `
+            "D3D11|D3D12|DXGI|CreateDXGI|CreateDevice|SwapChain|D3DCompile|D3DReflect|AGS" |
+            Out-File (Join-Path $outputDir "graphics-imports.txt") -Encoding utf8
+
+          # Extract readable strings from the executable using Microsoft's strings tool,
+          # if it is available in the MSVC environment.
+          $stringsTool = Get-Command strings.exe -ErrorAction SilentlyContinue
+
+          if ($stringsTool) {
+            & $stringsTool.Source -n 6 $exe |
+               Select-String -Pattern "D3D11|DXGI|D3DCompile|Shader|Adapter|FeatureLevel|AGS" |
+               Out-File (Join-Path $outputDir "graphics-strings.txt") -Encoding utf8
+          } else {
+             Write-Host "strings.exe was not found; graphics-imports.txt was still generated."
+          }
+
       - name: Clean up intermediate archive files
         shell: pwsh
         run: |
