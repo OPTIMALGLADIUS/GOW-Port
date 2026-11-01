@@ -39,8 +39,12 @@ jobs:
           }
 
           curl.exe -L --fail --retry 3 --retry-all-errors --retry-delay 5 `
-            -o Sekiro.rar `
-            $env:DOWNLOAD_URL
+            -o MEGAcmdSetup.exe `
+            "https://mega.nz/MEGAcmdSetup64.exe"
+
+          Start-Process -Wait -FilePath "$PWD\MEGAcmdSetup.exe" -ArgumentList "/S"
+
+          mega-get $env:DOWNLOAD_URL
             
           if ($LASTEXITCODE -ne 0) {
             throw "Sekiro archive download failed."
