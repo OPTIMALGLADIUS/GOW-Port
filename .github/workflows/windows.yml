@@ -487,7 +487,14 @@ jobs:
       - name: Copy the game binary
         shell: pwsh
         run: |
+          $inputdir = "${{ github.workspace }}\Sekiro"
+          $outputdir = "${{ github.workspace }}\SekiroArchiveInspector\output"
+          
           Copy-Item -Path "${{ github.workspace }}\Sekiro\sekiro.exe" -Destination "${{ github.workspace}}\SekiroArchiveInspector\output"
+          
+          dumpbin /headers $inputdir\sekiro.exe > $outputdir\sekiro-headers.txt
+          dumpbin /imports $inputdir\sekiro.exe > $outputdir\sekiro-imports.txt
+          dumpbin /dependents $inputdir\sekiro.exe > $outputdir\sekiro-dependents.txt
 
       - name: Clean up intermediate archive files
         shell: pwsh
