@@ -15,11 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Setup MSVC
-        uses: TheMrMilchmann/setup-msvc-dev@v4
-        with:
-          arch: x64
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -488,6 +483,11 @@ jobs:
             Get-Item -LiteralPath $path |
               Select-Object Name, Length
           }
+
+      - name: Setup MSVC
+        uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: x64
 
       - name: Copy the game binary
         shell: pwsh
