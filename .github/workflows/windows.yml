@@ -38,21 +38,68 @@ jobs:
             throw "SEKIRO_DOWNLOAD_URL secret is missing."
           }
 
+          # Download MEGAcmd installer
+          $installer = Join-Path $env:GITHUB_WORKSPACE "MEGAcmdSetup.exe"
+
           curl.exe -L --fail --retry 3 --retry-all-errors --retry-delay 5 `
-            -o MEGAcmdSetup.exe `
+            -o $installer `
             "https://mega.nz/MEGAcmdSetup64.exe"
 
-          Start-Process -Wait -FilePath "${{ github.workspace }}\MEGAcmdSetup.exe" -ArgumentList "/S"
-
           if ($LASTEXITCODE -ne 0) {
-            throw "The Setup of MEGA cmd was unsuccessful."
+            throw "Downloading the MEGAcmd installer failed."
           }
 
-          mega-get $env:DOWNLOAD_URL
-            
-          if ($LASTEXITCODE -ne 0) {
-            throw "Sekiro archive download failed."
+          if (!(Test-Path -LiteralPath $installer -PathType Leaf)) {
+            throw "MEGAcmd installer was not downloaded."
           }
+
+          # Run silent installation and check the installer's actual exit code
+          $installProcess = Start-Process `
+            -FilePath $installer `
+            -ArgumentList "/S" `
+            -Wait `
+            -PassThru
+
+          Write-Host "MEGAcmd installer exit code: $($installProcess.ExitCode)"
+
+          if ($installProcess.ExitCode -ne 0) {
+            throw "MEGAcmd installation failed with exit code $($installProcess.ExitCode)."
+          }
+
+          # MEGAcmd's documented Windows installation location
+          $megaCmdDir = Join-Path $env:LOCALAPPDATA "MEGAcmd"
+
+          if (!(Test-Path -LiteralPath $megaCmdDir -PathType Container)) {
+            throw "MEGAcmd installation directory was not found: $megaCmdDir"
+          }
+
+          # Add it to this PowerShell process's PATH
+          $env:PATH = "$megaCmdDir;$env:PATH"
+
+          Write-Host "MEGAcmd installation directory:"
+          Get-ChildItem -LiteralPath $megaCmdDir -File |
+            Select-Object Name, FullName
+
+          # Find the Windows scriptable download command
+          $megaGet = Join-Path $megaCmdDir "mega-get.bat"
+
+          if (!(Test-Path -LiteralPath $megaGet -PathType Leaf)) {
+            throw "mega-get.bat was not found in $megaCmdDir"
+          }
+
+          # Download into the current workspace
+          $downloadDir = Join-Path $env:GITHUB_WORKSPACE "Sekiro"
+          New-Item -ItemType Directory -Force -Path $downloadDir | Out-Null
+
+          & $megaGet $env:DOWNLOAD_URL $downloadDir
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "MEGA download failed with exit code $LASTEXITCODE."
+          }
+
+          Write-Host "MEGA download command completed."
+          Get-ChildItem -LiteralPath $downloadDir -File |
+            Select-Object Name, Length
 
           git clone https://github.com/OPTIMALGLADIUS/SekiroArchiveInspector.git
           if ($LASTEXITCODE -ne 0) {
