@@ -164,11 +164,6 @@ jobs:
           Write-Host "Archive files found:"
           Get-Item $bhd, $bdt | Select-Object Name, Length
 
-      - name: Copy the game binary
-        shell: pwsh
-        run: |
-          Copy-Item -Path "${{ github.workspace }}\Sekiro\sekiro.exe" -Destination "${{ github.workspace}}\SekiroArchiveInspector\output"
-
       - name: Configure Oodle for runtime
         shell: pwsh
         run: |
@@ -488,7 +483,11 @@ jobs:
             Get-Item -LiteralPath $path |
               Select-Object Name, Length
           }
-      
+
+      - name: Copy the game binary
+        shell: pwsh
+        run: |
+          Copy-Item -Path "${{ github.workspace }}\Sekiro\sekiro.exe" -Destination "${{ github.workspace}}\SekiroArchiveInspector\output"
 
       - name: Clean up intermediate archive files
         shell: pwsh
